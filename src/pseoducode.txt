@@ -1,0 +1,10 @@
+[*] finding an equation to make the dir listing more dynamic
+
+if we have a certain amount of dir:
+	len(dir) == 6 (exmple)
+it is gonna be listed
+
+	[*] [*] [*]
+	[*] [*] [*]
+but if we have more than 6 for instance 200:
+
