@@ -152,6 +152,8 @@ class mooshell:
                     print("the number you specified is wrong! try again")
             except Exception as e:
                 print(e)
+        else:
+            print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
     def Cmd(self):
         try:
             if platform == "win32":
