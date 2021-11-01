@@ -19,20 +19,19 @@ from subprocess import check_output
 from docs import *
 from requests import get
 
+
 DOC = f"""{Fore.YELLOW} 
 ---------------------------------
 Commands: 
-    mk : make dir
+    mkdir : make dir
     touch : make file
     cd : navigate
     ls : list file/dirs
-    rmd : remove a dir
+    rmdir : remove a dir
     cat : check the content of a file
     quit/exit : exits.
    {Fore.BLUE} Note : {Fore.YELLOW} you can run:
-        commands => display commands
-        commandName --help => display help for the command
-
+    commandName --help
     for more information 
 ----------------------------------
 {Fore.WHITE} language: {Fore.BLUE} Python 3.9  
@@ -52,63 +51,81 @@ class mooshell:
         while self.run:
             try:
                 self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
-
-                if len(self.prompt.split(' ')) == 1:
-                    self.promp =  self.prompt.strip().upper()
-                    if self.promp == "LS" or self.promp == "DIR":
-                        self.ls()
-                    elif self.promp == "CD":
-                        print()
-                        print(self.dir)
-                        print()
-                    elif self.promp == "QUIT" or self.promp == "EXIT":
-                        self.quit()
-                    elif self.promp == "ENCODER":
-                        self.args = None
-                        self.Cmd()
-
-                    elif self.promp == "COMMANDS":
-                        print(availableCommands)
-                    else:
-                        self.args = None
-                        self.Cmd()
-                elif len(self.prompt.split(' ')) > 1:
-                    if self.prompt.split(' ')[0].strip().upper() == "CD":
-                        self.changedir(self.prompt.split(' ')[1])
-                    elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
-                        self.touch(self.prompt.split(' ')[1])
-                    elif self.prompt.split(' ')[0].strip().upper() == "MK":
-                        try:
-                            mkdir(self.prompt.split(' ')[1])
-                        except:
-                            print('something went wrong!!')
-                    elif self.prompt.split(' ')[0].strip().upper() == "RMD":
-                        try:
-                            rmdir(self.prompt.split(' ')[1])
-                        except:
-                            print('something went wrong!!')
-                    elif self.prompt.split(' ')[0].strip().upper() == "ENCODER":
-                        self.setArgs()
-                        self.Cmd()
-                    elif self.prompt.split(' ')[0].strip().upper() == "COMPILER":
-                        self.setArgs()
-                        self.Cmd()
-                    elif self.prompt.split(' ')[0].strip().upper() == "CAT":
-                        self.cat()
-                    elif self.prompt.split(' ')[0].strip().upper() == "LS" or self.prompt.split(' ')[0].strip().upper() == "DIR":
-                        self.dir = self.prompt.split(' ')[1]
-                        self.ls()
-                    elif self.prompt.split(' ')[0].strip().upper() == "HELP":
-                        print()
-                        print(availableCommands)
-                        print()
-                    elif self.prompt.split(' ')[0].strip().upper() == "SCRAP":
-                        self.scrap(self.prompt.split(' ')[1])
-                    else:
-                        self.setArgs()
-                        self.Cmd()
+                self.processArgs()
             except Exception as e:
                 print(e)
+    def processArgs(self):
+        if len(self.prompt.split(' ')) == 1:
+            self.promp =  self.prompt.strip().upper()
+            if self.promp == "LS" or self.promp == "DIR":
+                self.ls()
+            elif self.promp == "CD":
+                print()
+                print(self.dir)
+                print()
+            elif self.promp == "QUIT" or self.promp == "EXIT":
+                self.quit()
+            elif self.promp == "ENCODER":
+                self.args = None
+                self.Cmd()
+
+            elif self.promp == "COMMANDS":
+                print(availableCommands)
+            elif self.promp == "SCRAP":
+                print(ScrapDoc)
+            else:
+                self.args = None
+                self.Cmd()
+        elif len(self.prompt.split(' ')) > 1:
+            if self.prompt.split(' ')[0].strip().upper() == "CD":
+                self.changedir(self.prompt.split(' ')[1])
+            elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
+                if len(self.prompt.split(' ')) > 2:
+                    self.touch(self.prompt.split(' ')[1:])
+                else:
+                    self.touch(self.prompt.split(' ')[1])
+            elif self.prompt.split(' ')[0].strip().upper() == "MKDIR":
+                if self.prompt.split(' ')[1].strip().upper() == '--help' or self.prompt.split(' ')[1].strip().upper() == '-h':
+                    print(mkDoc)
+                else:
+                    try:
+                        mkdir(self.prompt.split(' ')[1])
+                    except:
+                        print('something went wrong!!')
+            elif self.prompt.split(' ')[0].strip().upper() == "RMDIR":
+                try:
+                    rmdir(self.prompt.split(' ')[1])
+                except:
+                    print('something went wrong!!')
+            elif self.prompt.split(' ')[0].strip().upper() == "ENCODER":
+                self.setArgs()
+                self.Cmd()
+            elif self.prompt.split(' ')[0].strip().upper() == "COMPILER":
+                self.setArgs()
+                self.Cmd()
+            elif self.prompt.split(' ')[0].strip().upper() == "CAT":
+                if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                    print(catDoc)
+                else:
+                    self.cat()
+            elif self.prompt.split(' ')[0].strip().upper() == "LS" or self.prompt.split(' ')[0].strip().upper() == "DIR":
+                self.dir = self.prompt.split(' ')[1]
+                self.ls()
+            elif self.prompt.split(' ')[0].strip().upper() == "HELP":
+                print()
+                print(availableCommands)
+                print()
+            elif self.prompt.split(' ')[0].strip().upper() == "SCRAP":
+                if len(self.prompt.split(' ')) == 2:
+                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                        print(ScrapDoc)
+                    else:
+                        self.scrap(self.prompt.split(' ')[1])
+                elif len(self.prompt.split(' ')) == 3:
+                    self.scrap(self.prompt.split(' ')[1], [self.prompt.split(' ')[2]])
+            else:
+                self.setArgs()
+                self.Cmd()
     def setArgs(self):
        self.args = ' '.join(self.prompt.split(' ')[0:])
     def ls(self):
@@ -117,43 +134,68 @@ class mooshell:
                 print(self.PRIMARY + '  [*]  ' + self.SECANDARY + _.name)
         print()
     def changedir(self, d):
-        if path.exists(d):
-            chdir(d)
-            self.dir = getcwd()
+        if d == '--help':
+            print(cdDoc)
         else:
-            print(f'{self.SECANDARY} it seems like it does not exist!')
+            if path.exists(d):
+                chdir(d)
+                self.dir = getcwd()
+            else:
+                print(f'{self.SECANDARY} it seems like it does not exist!')
     def touch(self, name):
-        return open(name, 'w+').close()
-    def scrap(self, url):
-        if get(url).status_code == 200:
-            res = {
-                0: get(url).content,
-                1: get(url).headers,
-                2: get(url).encoding,
-                3: get(url).json,
-                4: get(url).text
-            }
-            print(f"{Fore.GREEN} status_code = 200 OK")
-            req = int(input(f"""
-                            {self.SECANDARY}
-                            specify what you want:
-                            (0) content
-                            (1) headers
-                            (2) Encoding
-                            (3) json
-                            (4) text
-
-                            """))
-            print()
-            try:
-                if req in res.keys():
-                    print(res[req])
-                else:
-                    print("the number you specified is wrong! try again")
-            except Exception as e:
-                print(e)
+        if name == '--help' or '-h':
+            print(touchDoc)
         else:
-            print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
+            if isinstance(name, list):
+                for _ in name:
+                    self.touch(_)
+            else:
+                return open(name, 'w+').close()
+    def scrap(self, url, args=[]):
+        if len(args) == 0:
+            if get(url).status_code == 200:
+                res = {
+                    0: get(url).content,
+                    1: get(url).headers,
+                    2: get(url).encoding,
+                    3: get(url).json(),
+                    4: get(url).text
+                }
+                print(f"{Fore.GREEN} status_code = 200 OK")
+                scr = True
+                while scr:
+                    req = int(input(f"""
+        {self.SECANDARY}
+        specify what you want:
+        (0) content
+        (1) headers
+        (2) Encoding
+        (3) json
+        (4) text
+        (99) exit
+        """))
+                    print()
+                    try:
+                        if req in res.keys():
+                            print(res[req])
+                        else:
+                            if req == 99:
+                                scr = False
+                            else:
+                                print("the number you specified is wrong! try again")
+                    except Exception as e:
+                        print(e)
+            else:
+                print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
+        else:
+            res = {
+                'content': get(url).content,
+                'headers': get(url).headers,
+                'Encoding': get(url).encoding,
+                'json': get(url).json(),
+                'text': get(url).text
+                }
+            print(res[arg])
     def Cmd(self):
         try:
             if platform == "win32":

@@ -36,6 +36,14 @@ class Encoder:
         """)
             exit()
         elif len(argv) == 2 or len(argv) == 3:
+            if '--help' in argv:
+                print("""
+        usage: Encode <text> --base [base] -e/-d --file 
+        --base: base32 for example 
+        --e: encode
+        --d: decode
+        --file: adding the flag makes <text> a fileName that has the text to be processed
+            """)
             print("the base is not specified! try: Encoding <text> --base base64")
             exit()
         elif len(argv) == 4: 
