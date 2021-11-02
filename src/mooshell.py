@@ -123,6 +123,9 @@ class mooshell:
                         self.scrap(self.prompt.split(' ')[1])
                 elif len(self.prompt.split(' ')) == 3:
                     self.scrap(self.prompt.split(' ')[1], [self.prompt.split(' ')[2]])
+            elif self.prompt.split(' ')[0].strip().upper() == "MIM":
+                self.mim(self.prompt.split(' ')[1])
+                print("quiting mim")
             else:
                 self.setArgs()
                 self.Cmd()
@@ -143,7 +146,7 @@ class mooshell:
             else:
                 print(f'{self.SECANDARY} it seems like it does not exist!')
     def touch(self, name):
-        if name == '--help' or '-h':
+        if name == '--help' or name == '-h':
             print(touchDoc)
         else:
             if isinstance(name, list):
@@ -158,14 +161,14 @@ class mooshell:
                     0: get(url).content,
                     1: get(url).headers,
                     2: get(url).encoding,
-                    3: get(url).json(),
+                    3: get(url).json,
                     4: get(url).text
                 }
                 print(f"{Fore.GREEN} status_code = 200 OK")
                 scr = True
-                while scr:
-                    req = int(input(f"""
-        {self.SECANDARY}
+                reqprompt = f"""
+                    {self.SECANDARY}
+                    
         specify what you want:
         (0) content
         (1) headers
@@ -173,18 +176,35 @@ class mooshell:
         (3) json
         (4) text
         (99) exit
-        """))
+
+                    """
+                while scr:
+                    req = int(input(reqprompt))
                     print()
                     try:
                         if req in res.keys():
-                            print(res[req])
+                            req2 = res[req]
+                            print(req2)
+                            redcondition = str(input("want to redirect to a file (yes/no, y/n): "))
+                            if redcondition.strip().upper() == 'YES' or redcondition.strip().upper() == 'Y':
+                                redirect = str(input("file to redirect to:"))
+                                if self.exist(redirect):
+                                    with open(redirect, 'a') as f:
+                                        f.write(req2.decode("utf-8"))
+                                        print(f"content redirected to: {redirect}")
+                                else:
+                                    with open(redirect, 'w') as f:
+                                        f.write(req2.decode("utf-8"))
+                                        print(f"content redirected to: {redirect}")
+                            else:
+                                pass
                         else:
                             if req == 99:
                                 scr = False
                             else:
                                 print("the number you specified is wrong! try again")
                     except Exception as e:
-                        print(e)
+                        print('something went wrong!', e)
             else:
                 print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
         else:
@@ -192,7 +212,7 @@ class mooshell:
                 'content': get(url).content,
                 'headers': get(url).headers,
                 'Encoding': get(url).encoding,
-                'json': get(url).json(),
+                'json': get(url).json,
                 'text': get(url).text
                 }
             print(res[arg])
@@ -211,6 +231,27 @@ class mooshell:
                     print(check_output(self.prompt.strip()).decode("utf-8"))
         except Exception as e:
             print(e)
+    def mim(self, filename):
+        print(f"{self.PRIMARY} to quit and save type /|/")
+        self.lineNum = 1
+        input_ = ""
+        temp = ""
+        if self.exist(filename):
+            for _ in open(filename).readlines():
+                _ = _.replace("\n", "")
+                print(f" {Fore.CYAN}{self.lineNum}  {self.YELLOW}{_}")
+                self.lineNum += 1
+        while input_ != "/|/":
+            
+            input_ = input(f"{Fore.CYAN}{self.lineNum}{self.YELLOW} ")
+            if input_ != "/|/":
+                if self.exist(filename):
+                    with open(filename, 'a') as f:
+                        f.write(f"{input_}\n")
+                else:
+                    with open(filename, 'w') as f:
+                        f.write(f"{input_}\n")
+            self.lineNum += 1
     def cat(self):
         if self.exist(self.prompt.split(' ')[1]):
             if len(self.prompt.split(' ')) > 2:

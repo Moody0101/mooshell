@@ -61,3 +61,8 @@ mkDoc = """
 command to make dirs
 usage: mk <dir path dir to make>
 """
+
+
+mim = """
+quiting symbol: /|/,
+"""
