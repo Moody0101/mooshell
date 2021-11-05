@@ -61,8 +61,18 @@ mkDoc = """
 command to make dirs
 usage: mk <dir path dir to make>
 """
+scanDoc = """
 
+scanning diractory for the specified ext:
+Usage: scan extantion.
+ex: scan .txt or scan .png
 
+"""
+mvDoc = """
+moving a file into  a specified distination:
+Usage: mv source:path/fileName distination:path
+exemple: mv ./file.txt c:/users/pc/whatever/docs
+"""
 mim = """
 quiting symbol: /|/,
 """

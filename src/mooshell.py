@@ -1,14 +1,10 @@
 
-
 """
 sys funcs/classes that I might use => stdin, stdout, stderr, platform, path, argv
 os ... => rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
 remove, rename, stat_result, system, walk
 shutil ... => disk_usage, move, copy, _make_zipfile
 """
-
-
-
 from sys import (stdin, stdout, stderr, platform, path, argv, exit)
 from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
 remove, rename, stat_result, system, walk)
@@ -18,9 +14,8 @@ from time import sleep
 from subprocess import check_output
 from docs import *
 from requests import get
-
-
-DOC = f"""{Fore.YELLOW} 
+from utility import dumptofile, getContent, getHeaders
+DOC = f"""{Fore.YELLOW}
 ---------------------------------
 Commands: 
     mkdir : make dir
@@ -36,8 +31,6 @@ Commands:
 ----------------------------------
 {Fore.WHITE} language: {Fore.BLUE} Python 3.9  
 """
-
-
 class mooshell:
 
     def __init__(self):
@@ -68,7 +61,8 @@ class mooshell:
             elif self.promp == "ENCODER":
                 self.args = None
                 self.Cmd()
-
+            elif self.promp == "scan":
+                print(scanDoc)
             elif self.promp == "COMMANDS":
                 print(availableCommands)
             elif self.promp == "SCRAP":
@@ -84,6 +78,21 @@ class mooshell:
                     self.touch(self.prompt.split(' ')[1:])
                 else:
                     self.touch(self.prompt.split(' ')[1])
+            elif self.prompt.split(' ')[0].strip().upper() == "MV":
+                if len(self.prompt.split(' ')) == 3:
+                    self.mv(self.prompt.split(' ')[1], self.prompt.split(' ')[2])
+                elif len(self.prompt.split(' ')) == 2:
+                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                        print(mvDoc)
+                    else:
+                        print("seems like the distination has not been specified yet!!")
+                else:
+                    print(mvDoc)
+            elif self.prompt.split(' ')[0].strip().upper() == "SCAN":
+                if self.prompt.split(' ')[1] == "--help" or self.prompt.split(' ')[1] == '-h':
+                    print(scanDoc)
+                else:
+                    self.scan(self.prompt.split(' ')[1])
             elif self.prompt.split(' ')[0].strip().upper() == "MKDIR":
                 if self.prompt.split(' ')[1].strip().upper() == '--help' or self.prompt.split(' ')[1].strip().upper() == '-h':
                     print(mkDoc)
@@ -121,8 +130,8 @@ class mooshell:
                         print(ScrapDoc)
                     else:
                         self.scrap(self.prompt.split(' ')[1])
-                elif len(self.prompt.split(' ')) == 3:
-                    self.scrap(self.prompt.split(' ')[1], [self.prompt.split(' ')[2]])
+                elif len(self.prompt.split(' ')) >= 3:
+                    self.scrap(self.prompt.split(' ')[1], self.prompt.split(' ')[2:])
             elif self.prompt.split(' ')[0].strip().upper() == "MIM":
                 self.mim(self.prompt.split(' ')[1])
                 print("quiting mim")
@@ -145,6 +154,7 @@ class mooshell:
                 self.dir = getcwd()
             else:
                 print(f'{self.SECANDARY} it seems like it does not exist!')
+
     def touch(self, name):
         if name == '--help' or name == '-h':
             print(touchDoc)
@@ -154,6 +164,21 @@ class mooshell:
                     self.touch(_)
             else:
                 return open(name, 'w+').close()
+    def scan(self, ext):
+        out = [i.name for i in scandir(self.dir) if i.name.endswith(ext)]
+        if len(out) > 0:
+            for _ in out:
+                print(f"{Fore.GREEN} ==> {_}")
+        else:
+            print("there is no files for the specified extention!")
+        return out
+    def mv(self, src, dist):
+        if self.exist(src):
+            if not self.exist(dist):
+                self.mkdir(dist)
+            move(src, dist)
+        else:
+            print(f"{self.ERR} the file specified to be removed does not exist!!")
     def scrap(self, url, args=[]):
         if len(args) == 0:
             if get(url).status_code == 200:
@@ -185,17 +210,11 @@ class mooshell:
                         if req in res.keys():
                             req2 = res[req]
                             print(req2)
+                            print()
                             redcondition = str(input("want to redirect to a file (yes/no, y/n): "))
-                            if redcondition.strip().upper() == 'YES' or redcondition.strip().upper() == 'Y':
+                            if redcondition.strip().upper() in ['YES', 'Y']:
                                 redirect = str(input("file to redirect to:"))
-                                if self.exist(redirect):
-                                    with open(redirect, 'a') as f:
-                                        f.write(req2.decode("utf-8"))
-                                        print(f"content redirected to: {redirect}")
-                                else:
-                                    with open(redirect, 'w') as f:
-                                        f.write(req2.decode("utf-8"))
-                                        print(f"content redirected to: {redirect}")
+                                dumptofile(redirect, req2)
                             else:
                                 pass
                         else:
@@ -208,14 +227,15 @@ class mooshell:
             else:
                 print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
         else:
-            res = {
-                'content': get(url).content,
-                'headers': get(url).headers,
-                'Encoding': get(url).encoding,
-                'json': get(url).json,
-                'text': get(url).text
-                }
-            print(res[arg])
+            if args[0].upper().strip() == 'HEADERS':
+                re0 = getHeaders(url)
+            elif args[0].upper().strip() == 'CONTENT':
+                re0 = getContent(url)
+            else:
+                re0 = getContent(url)
+            print(re0)
+            redirect = input('file to redirect to: ')
+            dumptofile(redirect, re0)
     def Cmd(self):
         try:
             if platform == "win32":
@@ -241,8 +261,7 @@ class mooshell:
                 _ = _.replace("\n", "")
                 print(f" {Fore.CYAN}{self.lineNum}  {self.YELLOW}{_}")
                 self.lineNum += 1
-        while input_ != "/|/":
-            
+        while input_ != "/|/":  
             input_ = input(f"{Fore.CYAN}{self.lineNum}{self.YELLOW} ")
             if input_ != "/|/":
                 if self.exist(filename):

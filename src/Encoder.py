@@ -99,4 +99,3 @@ class Encoder:
 
 if __name__ == '__main__':
     en = Encoder()
-
