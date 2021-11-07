@@ -1,10 +1,9 @@
-[*] finding an equation to make the dir listing more dynamic
+=> ideas
 
-if we have a certain amount of dir:
-	len(dir) == 6 (exmple)
-it is gonna be listed
 
-	[*] [*] [*]
-	[*] [*] [*]
-but if we have more than 6 for instance 200:
-
+	[ ] making an encrypted database, using hashlib.sha256,hmac.compare_digest() Auth, base64, db class.
+		it will take {nameofdata, data} as an object, the return it if needed. (of crs if the password is correct.)
+	[ ] making git mechanisms to push more effecient to my repos.
+	[ ] making some dev utils.
+	[ ] sys optimizations and utils.
+		[ ] file organizer.

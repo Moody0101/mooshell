@@ -38,5 +38,5 @@ def getJson(url):
 	return get(url).json
 def getText(url):
 	return get(url).text
-def getEncoding():
+def getEncoding(url):
 	return get(url).encoding
