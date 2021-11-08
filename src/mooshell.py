@@ -73,6 +73,9 @@ class mooshell:
         elif len(self.prompt.split(' ')) > 1:
             if self.prompt.split(' ')[0].strip().upper() == "CD":
                 self.changedir(self.prompt.split(' ')[1])
+            if self.prompt.split(' ')[0].strip().upper() == "DATABASE":
+                self.setArgs()
+                self.Cmd()
             elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
                 if len(self.prompt.split(' ')) > 2:
                     self.touch(self.prompt.split(' ')[1:])
