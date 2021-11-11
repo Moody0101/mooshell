@@ -16,15 +16,20 @@ Flags: --register, --login, --help
 
 doc = """
 GET functionality:
-Database --login => will ask for dbName and paswword and outputs the db.
+
 Database --login [dbName] [password] => consoles all the data in the db.
+Database --login => will ask for dbName and paswword and outputs the db.
 Database --getHeaders [dbName] [password] => gets and consoles all the headers
+Database --getHeaders => gets and consoles all the headers (asks for name/password!)
+
 Database --getItems [dbName] [password] => get the items.
 
 POST functionality:
+
 Database --register => to make new dataBase and password for it.
-Database --register [password] [dbName] => to Make db more quickly.
-Database --postData [password] [dbName] header=Myname data=Hossin => it posts the data with
+Database --register  [dbName] [password]=> to Make db more quickly.
+Database --update [dbname] [password] [header] [data]
+
 the header my name.
 
 Database --help or -h => to get some help.
@@ -36,7 +41,7 @@ from colorama import Fore
 from sys import argv
 from time import sleep
 from json import dumps, loads
-user = getenv("USERPROFILE") + "//" + "data0101"
+user = getenv("USERPROFILE") + "\\" + "data0101"
 if not path.exists(user):
 	mkdir(user)
 
@@ -50,22 +55,25 @@ AvailableColors = [
 'LIGHTRED_EX', 'LIGHTWHITE_EX', 
 'LIGHTYELLOW_EX', 'MAGENTA', 
 'RED', 'RESET', 
-'WHITE', 'YELLOW']
+'WHITE', 'YELLOW'
+]
 
 YELLOW = Fore.YELLOW
 RED = Fore.RED
 BLUE = Fore.BLUE
 GREEN = Fore.GREEN
 WHITE = Fore.WHITE
+CYAN = Fore.CYAN
+
 
 class database:
 	def __init__(self, dbPATH=user, dbName=None, password=None, data=None):
 		self.dbPATH = dbPATH
 		self.dbName = dbName
-		self.abs = f"{self.dbPATH}{self.dbName}"
+		self.abs = f"{self.dbPATH}\\{self.dbName}.json"
 		self.password = password
 		self.data = data
-
+		
 	@property
 	def getpassword(self):
 		"""
@@ -78,8 +86,6 @@ class database:
 		gets all the data using the GET base command.
 		"""
 		return self.GET["data"]
-	@property
-	
 	def POST(self, ELEMENTS: tuple):
 		"""
 	you post a tuple because you are going to have a header and also the data.
@@ -91,16 +97,26 @@ class database:
 	or whatever then this method is going to be exectuted like this: DB.POST((dataHeader, data))
 
 		"""
-		data = self.getdata
-		data.append(ELEMENTS)
-		data0 = self.GET().update({"data": data})
-		with open(self.abs) as f:
-			f.write(dumps(data0))
-			print('db updated successfully!')
+		self.OPEN()
+		if isinstance(self.login(), tuple):
+			print(f"{RED}db {self.dbName} does not exist!!{WHITE}")
+		else:
+			if self.login():
+				data1 = self.GET
+				data = self.getdata
+				data.append(ELEMENTS)
+				data1.update({"data": data})
+				print(data1)
+				with open(self.abs, "w+") as f:
+					f.write(dumps(data1))
+					print(f'{GREEN} db updated successfully! {GREEN}')
+			else:
+				print(f"{RED} incorrect Password!{WHITE}")
+	@property
 	def GET(self):
 		with open(self.abs, 'r') as f:
 			data = loads(f.read())
-		return 
+		return data
 	def SetDbattrib(self, attr: str) -> bool:
 		if path.exists(self.dbPATH):
 			return False
@@ -122,16 +138,16 @@ class database:
 			if self.login():
 				if len(self.getdata) >= 1:
 					print(f"{self.dbName} headers:")
-					for _ in self.getdata():
+					for _ in self.getdata:
 						print(f"{BLUE}[*] {YELLOW}{_[0]}:\n")
 						print()
 				else:
-					print(f"{self.dbName}Empty database")
+					print(f"{self.dbName} is an Empty database")
 			else:
 				print(f"{RED} incorrect Password!{WHITE}")
 	def login(self):
 		if path.exists(self.abs):
-			if getpassword(self.abs) == sha256(self.password.encode()).hexdigest().decode():
+			if self.getpassword == sha256(self.password.encode()).hexdigest():
 				return True
 			else:
 				return False
@@ -145,24 +161,27 @@ class database:
 		else:
 			if self.login():
 				if len(self.getdata) >= 1:
-					print(f"[@] db Name {self.dbName}")
-					for _ in self.getdata():
+					print(f"[@] {YELLOW} dataBase Name => {CYAN} {self.dbName}")
+					print()
+					for _ in self.getdata:
 
-						print(f"{BLUE}[*] {GREEN}{_[0]}:\n{YELLOW}{_[1]}{YELLOW}\n")
+						print(f"{BLUE}[*] {GREEN}{_[0]}:\n\t{YELLOW}{_[1]}{WHITE}\n")
 						print()
 				else:
-					print(f"{self.dbName}Empty database")
+					print(f"{self.dbName} is an Empty database")
 			else:
 				print(f"{RED} incorrect Password!{WHITE}")
-	def creatpassWord(self):
-		password = input("Enter password: ").strip()
-		password0 = input("Confirm: ").strip()
-		while password != password0:
-			print({Fore.RED} + "Not identical, try again")
+	def creatpassWord(self, p=None):
+		if not p:
 			password = input("Enter password: ").strip()
 			password0 = input("Confirm: ").strip()
+			while password != password0:
+				print({Fore.RED} + "Not identical, try again")
+				password = input("Enter password: ").strip()
+				password0 = input("Confirm: ").strip()
 		else:
-			return sha256(password.encode()).hexdigest()
+			password = p
+		return sha256(password.encode()).hexdigest()
 	def getItems(self):
 		self.OPEN()
 		if isinstance(self.login(), tuple):
@@ -179,14 +198,16 @@ class database:
 			else:
 				print(f"{RED} incorrect Password!{WHITE}")
 
-	def register(self):
-		
+	def register(self, psswd=None):
 		if not self.dbexists():
-			password = self.creatpassWord()
+			password = self.creatpassWord(p=psswd)
+
 			data = dumps({"password":f"{password}","data":[]}, indent=4)
+			print(data)
 			with open(self.abs, 'w+') as f:
 				f.write(data)
 			print(f"{GREEN} Database {self.dbName} was cereated successfully!!{WHITE}")
+			print('password is : ', password)
 			print(doc)
 			return 1
 		else:
@@ -197,8 +218,10 @@ class database:
 			else:
 				exit()
 	def cleanUp(self):
+		close = input(f"{CYAN}PRESS ANY KEY TO CLOSE!")
 		for _ in ['.'*i for i in range(6)]:
-			print(f"closing the db{_}", end='\r')
+			print(f"{CYAN}closing the db{_}{WHITE}", end='\r')
+			sleep(0.4)
 		self.CLOSE()
 
 
@@ -249,14 +272,49 @@ def execute():
 				db.database(dbName=dbname, password=dbpassword)
 				db.getHeaders()
 				db.cleanUp()
+			elif argv[n+1] == "--update":
+				dbname = input(f"{YELLOW}DbName: {WHITE}")
+				dbpassword = input(f"{YELLOW}Password: {WHITE}")
+				db.database(dbName=dbname, password=dbpassword)
+				db.OPEN()
+				# logic to post!!
+				db.cleanUp()
 			else:
-				print("made it")
-
 				print(doc)
 	elif len(argv) > 2:
-		print('hu')
+		if argv[1+n] == "--register":
+			# cmd = arg0 --register dbName password  (make new db, with this name and passsword!)
+			if len(argv) == 4+n:	
+				for _ in ['\\', '|', '/', '-', '\\', '|', '/', '-', '\\', '|', '/', '-']:
+					print(f"{BLUE} initializing database! {_}{WHITE}", end="\r")
+					sleep(0.3)
+				print(f'{YELLOW}initialized!!{WHITE}')
+				db = database(dbName=argv[2+n])
+				db.register(psswd=argv[3+n])
+				db.cleanUp()
+				exit(0)
+			else:
+				print(f"{RED}either the database name of the password is messing!{WHITE}")
+		elif argv[1+n] == "--login":
+			if len(argv) == 4+n:
+				#cmd2 = arg0 --login dbName password (login using this name and password!)
+				print(f"{BLUE}Querying the database..{WHITE}")
+				sleep(2)
+				db = database(dbName=argv[2+n], password=argv[3+n])
+				db.QueryDb()
+				db.cleanUp()
+			else:
+				print(f"{RED}either the database name of the password is messing!{WHITE}")
+		elif argv[1+n] == "--update":
+			if len(argv) >= 5+n:
+				db = database(dbName=argv[2+n], password=argv[3+n])
+				db.POST([argv[4+n], argv[5+n]])
+				db.cleanUp()
+			else:
+				print(len(argv))
+				print(f"{RED}either the database name of the password is messing!{WHITE}")
+
 	else:
-		len(argv)
 		print(doc)
 
 execute()
