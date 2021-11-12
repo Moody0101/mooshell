@@ -5,7 +5,7 @@ os ... => rmdir, chdir, mkdir, getcwd, path, scandir, removedirs,
 remove, rename, stat_result, system, walk
 shutil ... => disk_usage, move, copy, _make_zipfile
 """
-from sys import (stdin, stdout, stderr, platform, path, argv, exit)
+from sys import (stdin, stdout, stderr, platform, path, exit)
 from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
 remove, rename, stat_result, system, walk)
 from shutil import disk_usage, move, copy, _make_zipfile
@@ -15,6 +15,7 @@ from subprocess import check_output
 from docs import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
+from database import *
 DOC = f"""{Fore.YELLOW}
 ---------------------------------
 Commands: 
@@ -67,6 +68,10 @@ class mooshell:
                 print(availableCommands)
             elif self.promp == "SCRAP":
                 print(ScrapDoc)
+            elif self.promp == "DATABASE":
+                print(doc)
+            elif self.promp == "CP":
+                self.cp()
             else:
                 self.args = None
                 self.Cmd()
@@ -74,8 +79,7 @@ class mooshell:
             if self.prompt.split(' ')[0].strip().upper() == "CD":
                 self.changedir(self.prompt.split(' ')[1])
             if self.prompt.split(' ')[0].strip().upper() == "DATABASE":
-                self.setArgs()
-                self.Cmd()
+                self.callDataBase(self.prompt.split(' '))
             elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
                 if len(self.prompt.split(' ')) > 2:
                     self.touch(self.prompt.split(' ')[1:])
@@ -138,11 +142,98 @@ class mooshell:
             elif self.prompt.split(' ')[0].strip().upper() == "MIM":
                 self.mim(self.prompt.split(' ')[1])
                 print("quiting mim")
+            elif self.prompt.split(' ')[0].strip().upper() == "CP":
+                self.cp(self.prompt.split(' ')[1:])
             else:
                 self.setArgs()
                 self.Cmd()
     def setArgs(self):
-       self.args = ' '.join(self.prompt.split(' ')[0:])
+        self.args = ' '.join(self.prompt.split(' ')[0:])
+    def callDataBase(self, argv: list, n=0):
+        if len(argv) == n+2 or len(argv) == n+1:
+            if argv[n+1] == '--help':
+                print(doc)
+            elif argv[n+1] == '--version':
+                print('0.0.0!')
+            else:
+                if argv[n+1] == "--register":
+                    dbname = input(f"{YELLOW}DbName: {WHITE}")
+                    
+                    for _ in ['\\', '|', '/', '-', '\\', '|', '/', '-', '\\', '|', '/', '-']:
+                        print(f"{BLUE} initializing database! {_}{WHITE}", end="\r")
+                        sleep(0.3)
+                    print(f'{YELLOW}initialized!!{WHITE}')
+                    db = database(dbName=dbname)
+                    db.register()
+                    db.cleanUp()
+                
+                elif argv[n+1] == "--login":
+                    dbname = input(f"{YELLOW}DbName: {WHITE}")
+                    dbpassword = input(f"{YELLOW}Password: {WHITE}")
+                    print(f"{BLUE}Querying the database..{WHITE}")
+                    db = database(dbName=dbname, password=dbpassword)
+                    db.QueryDb()
+                    db.cleanUp()
+                elif argv[n+1] == "--getItems":
+                    dbname = input(f"{YELLOW}DbName: {WHITE}")
+                    dbpassword = input(f"{YELLOW}Password: {WHITE}")
+                    print(f"{BLUE}Querying the database..{WHITE}")
+                    db = database(dbName=dbname, password=dbpassword)
+                    db.database(dbName=dbname, password=dbpassword)
+                    db.getItems()
+                    db.cleanUp()
+                elif argv[n+1] == "--getHeaders":
+                    dbname = input(f"{YELLOW}DbName: {WHITE}")
+                    dbpassword = input(f"{YELLOW}Password: {WHITE}")
+                    print(f"{BLUE}Querying the database..{WHITE}")
+                    db = database(dbName=dbname, password=dbpassword)
+                    db.database(dbName=dbname, password=dbpassword)
+                    db.getHeaders()
+                    db.cleanUp()
+                elif argv[n+1] == "--update":
+                    dbname = input(f"{YELLOW}DbName: {WHITE}")
+                    dbpassword = input(f"{YELLOW}Password: {WHITE}")
+                    db.database(dbName=dbname, password=dbpassword)
+                    db.OPEN()
+                    # logic to post!!
+                    db.cleanUp()
+                else:
+                    print(doc)
+        elif len(argv) > 2:
+            if argv[1+n] == "--register":
+                # cmd = arg0 --register dbName password  (make new db, with this name and passsword!)
+                if len(argv) == 4+n:    
+                    for _ in ['\\', '|', '/', '-', '\\', '|', '/', '-', '\\', '|', '/', '-']:
+                        print(f"{BLUE} initializing database! {_}{WHITE}", end="\r")
+                        sleep(0.3)
+                    print(f'{YELLOW}initialized!!{WHITE}')
+                    db = database(dbName=argv[2+n])
+                    db.register(psswd=argv[3+n])
+                    db.cleanUp()
+                    exit(0)
+                else:
+                    print(f"{RED}either the database name of the password is messing!{WHITE}")
+            elif argv[1+n] == "--login":
+                if len(argv) == 4+n:
+                    #cmd2 = arg0 --login dbName password (login using this name and password!)
+                    print(f"{BLUE}Querying the database..{WHITE}")
+                    sleep(2)
+                    db = database(dbName=argv[2+n], password=argv[3+n])
+                    db.QueryDb()
+                    db.cleanUp()
+                else:
+                    print(f"{RED}either the database name of the password is messing!{WHITE}")
+            elif argv[1+n] == "--update":
+                if len(argv) >= 5+n:
+                    db = database(dbName=argv[2+n], password=argv[3+n])
+                    db.POST([argv[4+n], argv[5+n]])
+                    db.cleanUp()
+                else:
+                    print(len(argv))
+                    print(f"{RED}either the database name of the password is messing!{WHITE}")
+
+        else:
+            print(doc)
     def ls(self):
         print()
         for _ in scandir(self.dir):
@@ -182,6 +273,18 @@ class mooshell:
             move(src, dist)
         else:
             print(f"{self.ERR} the file specified to be removed does not exist!!")
+    def cp(self, files=None):
+        if files == None:
+            print(f"{CYAN} description:\n {WHITE} A command to copy files \n {CYAN} Usage:\n {WHITE}cp <filepath> <destinationpath>")
+        elif len(files) < 2:
+            print(f"{RED} something was not specified\n {YELLOW}check if you specified both the file and destination")
+        elif len(files) > 2:
+            for _ in files[:-1]:
+                copy(_, files[-1])
+            print(f'{GREEN} copied {len(files)} files!!')
+        else:
+            copy(files[0], files[1])
+            print(f'{GREEN} copied one file!!')
     def scrap(self, url, args=[]):
         if len(args) == 0:
             if get(url).status_code == 200:
