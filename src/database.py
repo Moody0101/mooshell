@@ -289,7 +289,9 @@ def execute():
 				dbpassword = input(f"{YELLOW}Password: {WHITE}")
 				db.database(dbName=dbname, password=dbpassword)
 				db.OPEN()
-				print("Not availabe yet:")
+				header = input(f"{YELLOW}Header: {WHITE}")
+				data = input(f"{YELLOW}Data: {WHITE}")
+				db.POST([header, data])
 				db.cleanUp()
 			elif argv[n+1] == "--clear":
 				dbname = input(f"{YELLOW}DbName: {WHITE}")
