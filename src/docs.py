@@ -76,3 +76,9 @@ exemple: mv ./file.txt c:/users/pc/whatever/docs
 mim = """
 quiting symbol: /|/,
 """
+
+Rmdoc = """
+Removin one or multiple files
+Usage: rm fileName/files 
+example: rm main.js main.css main.txt
+"""

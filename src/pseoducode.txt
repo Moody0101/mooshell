@@ -1,7 +1,7 @@
 => ideas
 
 
-	[ ] making an encrypted database, using hashlib.sha256,hmac.compare_digest() Auth, base64, db class.
+	[*] making an encrypted database, using hashlib.sha256,hmac.compare_digest() Auth, base64, db class.
 		it will take {nameofdata, data} as an object, the return it if needed. (of crs if the password is correct.)
 	[ ] making git mechanisms to push more effecient to my repos.
 	[ ] making some dev utils.

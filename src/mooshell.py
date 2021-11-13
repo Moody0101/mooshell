@@ -1,23 +1,24 @@
 
-"""
-sys funcs/classes that I might use => stdin, stdout, stderr, platform, path, argv
-os ... => rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
-remove, rename, stat_result, system, walk
-shutil ... => disk_usage, move, copy, _make_zipfile
-"""
+
 from sys import (stdin, stdout, stderr, platform, path, exit)
 from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
-remove, rename, stat_result, system, walk)
+remove, rename, stat_result, system, walk, getenv)
 from shutil import disk_usage, move, copy, _make_zipfile
 from colorama import Fore
 from time import sleep
 from subprocess import check_output
+from typing import Union
 from docs import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
+
+
+
+
 DOC = f"""{Fore.YELLOW}
----------------------------------
+
+-------------------------------------------------------------
 Commands: 
     mkdir : make dir
     touch : make file
@@ -29,9 +30,18 @@ Commands:
    {Fore.BLUE} Note : {Fore.YELLOW} you can run:
     commandName --help
     for more information 
-----------------------------------
+--------------------------------------------------------------
 {Fore.WHITE} language: {Fore.BLUE} Python 3.9  
 """
+
+USERPROFILE = getenv("USERPROFILE")
+
+
+class __installer:
+    pass
+
+
+
 class mooshell:
 
     def __init__(self):
@@ -85,6 +95,17 @@ class mooshell:
                     self.touch(self.prompt.split(' ')[1:])
                 else:
                     self.touch(self.prompt.split(' ')[1])
+            elif self.prompt.split(' ')[0].strip().upper() == "RM":
+                if len(self.prompt.split(' ')) == 2:
+                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                        print(Rmdoc)
+                    else:
+                        self.rm(self.prompt.split(' ')[1])
+                elif len(self.prompt.split(' ')) > 2:
+                    self.rm(self.prompt.split(' ')[1:])
+                elif len(self.prompt.split(' ')) > 2:
+                    
+                        print(mvDoc)
             elif self.prompt.split(' ')[0].strip().upper() == "MV":
                 if len(self.prompt.split(' ')) == 3:
                     self.mv(self.prompt.split(' ')[1], self.prompt.split(' ')[2])
@@ -144,11 +165,24 @@ class mooshell:
                 print("quiting mim")
             elif self.prompt.split(' ')[0].strip().upper() == "CP":
                 self.cp(self.prompt.split(' ')[1:])
+
             else:
                 self.setArgs()
                 self.Cmd()
     def setArgs(self):
         self.args = ' '.join(self.prompt.split(' ')[0:])
+    def rm(self, file: Union[str, list]) -> None:
+        if isinstance(file, str):
+            if self.exist(file):
+                try:
+                    remove(file)
+                except:
+                    system(f"del {file}")
+            else:
+                print(f"{self.ERR} the file specified to be deleted does not exist!!")
+        else:
+            for _ in file:
+                self.rm(_)
     def callDataBase(self, argv: list, n=0):
         if len(argv) == n+2 or len(argv) == n+1:
             if argv[n+1] == '--help':
@@ -244,6 +278,7 @@ class mooshell:
             print(cdDoc)
         else:
             if path.exists(d):
+
                 chdir(d)
                 self.dir = getcwd()
             else:
@@ -270,9 +305,12 @@ class mooshell:
         if self.exist(src):
             if not self.exist(dist):
                 self.mkdir(dist)
-            move(src, dist)
+            try:
+                move(src, dist)
+            except:
+                system(f"move {src} {dist}")
         else:
-            print(f"{self.ERR} the file specified to be removed does not exist!!")
+            print(f"{self.ERR} the file specified to be moved does not exist!!")
     def cp(self, files=None):
         if files == None:
             print(f"{CYAN} description:\n {WHITE} A command to copy files \n {CYAN} Usage:\n {WHITE}cp <filepath> <destinationpath>")
@@ -280,11 +318,14 @@ class mooshell:
             print(f"{RED} something was not specified\n {YELLOW}check if you specified both the file and destination")
         elif len(files) > 2:
             for _ in files[:-1]:
-                copy(_, files[-1])
+                self.cp([_, files[-1]])
             print(f'{GREEN} copied {len(files)} files!!')
         else:
-            copy(files[0], files[1])
-            print(f'{GREEN} copied one file!!')
+            try:
+                copy(files[0], files[1])
+                print(f'{GREEN} copied one file!!')
+            except:
+                system(f"copy {files[0]} {files[1]}")
     def scrap(self, url, args=[]):
         if len(args) == 0:
             if get(url).status_code == 200:
@@ -399,7 +440,8 @@ class mooshell:
                     print(f.read())
         else:
             print(f"{self.ERR} this file you specified does not exist")
-
+    def scandrive(self, name, user=USERPROFILE):
+        pass
     def exist(self, p):
         return path.exists(p)
     def quit(self):
