@@ -1,10 +1,8 @@
-
-
 from sys import (stdin, stdout, stderr, platform, path, exit)
-from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs, 
-remove, rename, stat_result, system, walk, getenv)
-from shutil import disk_usage, move, copy, _make_zipfile
-from colorama import Fore
+from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs,
+remove, rename, stat_result, system, walk, getenv, name)
+from shutil import move, copy
+from Moocolors import *
 from time import sleep
 from subprocess import check_output
 from typing import Union
@@ -16,48 +14,59 @@ from database import *
 
 
 
-DOC = f"""{Fore.YELLOW}
-
--------------------------------------------------------------
-Commands: 
-    mkdir : make dir
-    touch : make file
-    cd : navigate
-    ls : list file/dirs
-    rmdir : remove a dir
-    cat : check the content of a file
-    quit/exit : exits.
-   {Fore.BLUE} Note : {Fore.YELLOW} you can run:
-    commandName --help
+DOC = f"""{YELLOW}
+----------------------------------------------------------------------------------
+########################################################################
+----------------------------------------------------------------------------------
+basic Commands: 
+    
+    mkdir => make folders and directories
+    touch => make files
+    cd => navigate
+    ls => list file/dirs
+    rmdir => remove a dir
+    cat => check the content of a file
+    quit/exit => exits.
+    scan => scan for the existence of a file.
+    
+    you can run:
+    {MAGENTA} commandName --help
     for more information 
---------------------------------------------------------------
-{Fore.WHITE} language: {Fore.BLUE} Python 3.9  
+------------------------------------------------------------------------------------
+{WHITE} language: {BLUE} Python 3.9  
 """
 
 USERPROFILE = getenv("USERPROFILE")
-
+HOME = getenv("HOMEPATH") + "\\Moo"
 
 class __installer:
-    pass
+    def __init__(self):
+        pass
 
 
-
-class mooshell:
+class mooShell:
 
     def __init__(self):
         print(DOC)
-        self.PRIMARY = Fore.BLUE
-        self.SECANDARY = Fore.WHITE
-        self.YELLOW = Fore.YELLOW
-        self.ERR = Fore.RED
-        self.dir = getcwd()
+
+        # if not self.exist(HOME):
+        #     mkdir(HOME)
+        #     self.changedir(HOME)
+        # else:
+        #     self.changedir(HOME)
+
+        self.PRIMARY = BLUE
+        self.SECANDARY = WHITE
+        self.YELLOW = YELLOW
+        self.ERR = RED
+        
         self.run = True
         while self.run:
-            try:
-                self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
-                self.processArgs()
-            except Exception as e:
-                print(e)
+            self.dir = getcwd()        
+            self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
+            self.processArgs()
+           
+
     def processArgs(self):
         if len(self.prompt.split(' ')) == 1:
             self.promp =  self.prompt.strip().upper()
@@ -86,9 +95,11 @@ class mooshell:
                 self.args = None
                 self.Cmd()
         elif len(self.prompt.split(' ')) > 1:
+           
             if self.prompt.split(' ')[0].strip().upper() == "CD":
                 self.changedir(self.prompt.split(' ')[1])
-            if self.prompt.split(' ')[0].strip().upper() == "DATABASE":
+
+            elif self.prompt.split(' ')[0].strip().upper() == "DATABASE":
                 self.callDataBase(self.prompt.split(' '))
             elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
                 if len(self.prompt.split(' ')) > 2:
@@ -109,6 +120,8 @@ class mooshell:
             elif self.prompt.split(' ')[0].strip().upper() == "MV":
                 if len(self.prompt.split(' ')) == 3:
                     self.mv(self.prompt.split(' ')[1], self.prompt.split(' ')[2])
+                elif len(self.prompt.split(' ')) > 3:
+                    self.mv(self.prompt.split(' ')[1:-1], self.prompt.split(' ')[-1])
                 elif len(self.prompt.split(' ')) == 2:
                     if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
                         print(mvDoc)
@@ -167,6 +180,7 @@ class mooshell:
                 self.cp(self.prompt.split(' ')[1:])
 
             else:
+
                 self.setArgs()
                 self.Cmd()
     def setArgs(self):
@@ -274,13 +288,12 @@ class mooshell:
                 print(self.PRIMARY + '  [*]  ' + self.SECANDARY + _.name)
         print()
     def changedir(self, d):
+        
         if d == '--help':
             print(cdDoc)
         else:
-            if path.exists(d):
-
-                chdir(d)
-                self.dir = getcwd()
+            if self.exist(d):
+                chdir(f"{d}")
             else:
                 print(f'{self.SECANDARY} it seems like it does not exist!')
 
@@ -297,20 +310,24 @@ class mooshell:
         out = [i.name for i in scandir(self.dir) if i.name.endswith(ext)]
         if len(out) > 0:
             for _ in out:
-                print(f"{Fore.GREEN} ==> {_}")
+                print(f"{GREEN} ==> {_}")
         else:
             print("there is no files for the specified extention!")
         return out
     def mv(self, src, dist):
-        if self.exist(src):
-            if not self.exist(dist):
-                self.mkdir(dist)
-            try:
-                move(src, dist)
-            except:
-                system(f"move {src} {dist}")
+        if isinstance(src, str):
+            if self.exist(src):
+                if not self.exist(dist):
+                    self.mkdir(dist)
+                try:
+                    move(src, dist)
+                except:
+                    system(f"move {src} {dist}")
+            else:
+                print(f"{self.ERR} the file specified to be moved does not exist!!")
         else:
-            print(f"{self.ERR} the file specified to be moved does not exist!!")
+            for _ in src:
+                self.mv(_, dist)
     def cp(self, files=None):
         if files == None:
             print(f"{CYAN} description:\n {WHITE} A command to copy files \n {CYAN} Usage:\n {WHITE}cp <filepath> <destinationpath>")
@@ -336,7 +353,7 @@ class mooshell:
                     3: get(url).json,
                     4: get(url).text
                 }
-                print(f"{Fore.GREEN} status_code = 200 OK")
+                print(f"{GREEN} status_code = 200 OK")
                 scr = True
                 reqprompt = f"""
                     {self.SECANDARY}
@@ -372,7 +389,7 @@ class mooshell:
                     except Exception as e:
                         print('something went wrong!', e)
             else:
-                print(f"{Fore.GREEN} status_code =  {get(url).status_code} :(")
+                print(f"{GREEN} status_code =  {get(url).status_code} :(")
         else:
             if args[0].upper().strip() == 'HEADERS':
                 re0 = getHeaders(url)
@@ -387,15 +404,15 @@ class mooshell:
         try:
             if platform == "win32":
                 if self.args is not None:
-                    print(check_output(self.args).decode("utf-8"))
+                    print(check_output(self.args, shell=True).decode("utf-8"))
                 else:
-                    print(check_output(self.prompt.strip()).decode("utf-8"))
+                    print(check_output(self.prompt.strip(), shell=True).decode("utf-8"))
             else:
                 if self.args is not None:
                     string = " ".join(self.args)
-                    print(check_output(f"python3 {string}").decode("utf-8"))
+                    print(check_output(f"python3 {string}", shell=True).decode("utf-8"))
                 else:
-                    print(check_output(self.prompt.strip()).decode("utf-8"))
+                    print(check_output(self.prompt.strip(), shell=True).decode("utf-8"))
         except Exception as e:
             print(e)
     def mim(self, filename):
@@ -406,10 +423,10 @@ class mooshell:
         if self.exist(filename):
             for _ in open(filename).readlines():
                 _ = _.replace("\n", "")
-                print(f" {Fore.CYAN}{self.lineNum}  {self.YELLOW}{_}")
+                print(f" {CYAN}{self.lineNum}  {self.YELLOW}{_}")
                 self.lineNum += 1
         while input_ != "/|/":  
-            input_ = input(f"{Fore.CYAN}{self.lineNum}{self.YELLOW} ")
+            input_ = input(f"{CYAN}{self.lineNum}{self.YELLOW} ")
             if input_ != "/|/":
                 if self.exist(filename):
                     with open(filename, 'a') as f:
@@ -443,12 +460,21 @@ class mooshell:
     def scandrive(self, name, user=USERPROFILE):
         pass
     def exist(self, p):
-        return path.exists(p)
+        if p in ["..", '.']:
+            return True
+        else:
+            try:
+                return path.exists(p)
+            except:
+                return False
     def quit(self):
-        print(' --- quiting --- ')
-        sleep(1)
+        for i in ['-','\\' , '|', '/']*2:
+            print(f'{LIGHTBLACK_EX} quiting {i}', end="\r")
+            sleep(.3)
         self.run = False
-def main():
-    mooshell()
-    print(Fore.WHITE)
-main()
+
+mooShell()
+print(WHITE)
+
+
+

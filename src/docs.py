@@ -1,11 +1,5 @@
 """
-commands to make documentation for: 
-	ls
-	mk
-	rmd
-	touch
-	cat
-
+DOCUMENTATIONS FOR THE COMMANDS IN MOOSHELL
 """
 
 availableCommands = """
@@ -57,25 +51,40 @@ and redirecting is possible:
 	cat ex.py >> ex2.py (redirects the content in overwrite mode to ex2)
 """
 
+
+
 mkDoc = """
 command to make dirs
 usage: mk <dir path dir to make>
 """
-scanDoc = """
 
+
+scanDoc = """
 scanning diractory for the specified ext:
 Usage: scan extantion.
 ex: scan .txt or scan .png
+"""
 
-"""
+
 mvDoc = """
-moving a file into  a specified distination:
-Usage: mv source:path/fileName distination:path
-exemple: mv ./file.txt c:/users/pc/whatever/docs
+
+
+moving a file/MultipleFiles into  a specified distination:
+
+
+Usage: mv source:path(s)/fileName(s) distination:path/Name
+
+exemple(OneFile): mv ./file.txt c:/users/pc/whatever
+example (MultipleFiles): mv  ./file.txt ./file.py ./file.html c:/users/pc/whatever
+and that will move ./file.txt ./file.py ./file.html to the specified destination
 """
+
+
 mim = """
-quiting symbol: /|/,
+quiting symbol: /|/
 """
+
+
 
 Rmdoc = """
 Removin one or multiple files
