@@ -10,7 +10,7 @@ from docs import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
-
+# set Path="%Path%;c:\\users\\Moo"
 
 
 
@@ -36,24 +36,42 @@ basic Commands:
 {WHITE} language: {BLUE} Python 3.9  
 """
 
-USERPROFILE = getenv("USERPROFILE")
-HOME = getenv("HOMEPATH") + "\\Moo"
+# USERPROFILE = getenv("USERPROFILE")
+if name == "posix":
+    HOME = "/mnt"
+    ROOT = HOME + "/Moo"
+else:
+    HOME = getenv("HOMEPATH")
+    ROOT = HOME + "\\Moo"
 
 class __installer:
     def __init__(self):
-        pass
-
+        if not path.exists(HOME):
+            mkdir(HOME)
+            cwd = getcwd()
+            move(cwd, HOME)
+            print(f"""
+{GREEN}=> successfully Installed in {HOME}
+{LIGHTMAGENTA_EX}=> Now you can try to add to PATH so you can access the shell from wherever you want!
+                """)
+        else:
+            cwd = getcwd()
+            move(cwd, HOME)
+            print(f"""
+{GREEN}=> successfully Installed in {HOME}
+{LIGHTMAGENTA_EX}=> Now you can try to add to PATH so you can access the shell from wherever you want!
+                """)
 
 class mooShell:
 
     def __init__(self):
         print(DOC)
 
-        # if not self.exist(HOME):
-        #     mkdir(HOME)
-        #     self.changedir(HOME)
-        # else:
-        #     self.changedir(HOME)
+        if not self.exist(ROOT):
+            mkdir(ROOT)
+            self.changedir(ROOT)
+        else:
+            self.changedir(ROOT)
 
         self.PRIMARY = BLUE
         self.SECANDARY = WHITE
@@ -62,10 +80,12 @@ class mooShell:
         
         self.run = True
         while self.run:
-            self.dir = getcwd()        
-            self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
-            self.processArgs()
-           
+            try:
+                self.dir = getcwd()        
+                self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
+                self.processArgs()
+            except Exception as e:
+                print(f"{self.ERR} some went bad!! :(",e)  
 
     def processArgs(self):
         if len(self.prompt.split(' ')) == 1:
@@ -91,6 +111,9 @@ class mooShell:
                 print(doc)
             elif self.promp == "CP":
                 self.cp()
+            elif self.promp == "COMPILER":
+                self.args = ["compiler.py"]
+                self.Cmd()
             else:
                 self.args = None
                 self.Cmd()
@@ -151,7 +174,8 @@ class mooShell:
                 self.setArgs()
                 self.Cmd()
             elif self.prompt.split(' ')[0].strip().upper() == "COMPILER":
-                self.setArgs()
+    
+                self.args = [f"{self.prompt.split(' ')[0]}.py", *self.prompt.split(' ')[1:]]
                 self.Cmd()
             elif self.prompt.split(' ')[0].strip().upper() == "CAT":
                 if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
@@ -356,17 +380,16 @@ class mooShell:
                 print(f"{GREEN} status_code = 200 OK")
                 scr = True
                 reqprompt = f"""
-                    {self.SECANDARY}
-                    
-        specify what you want:
-        (0) content
-        (1) headers
-        (2) Encoding
-        (3) json
-        (4) text
-        (99) exit
+{LIGHTCYAN_EX}
+specify what you want:
+=> (0) content
+=> (1) headers
+=> (2) Encoding
+=> (3) json
+=> (4) text
+=> (99) exit
 
-                    """
+"""
                 while scr:
                     req = int(input(reqprompt))
                     print()
@@ -385,21 +408,39 @@ class mooShell:
                             if req == 99:
                                 scr = False
                             else:
-                                print("the number you specified is wrong! try again")
+                                print(f"{self.ERR}the number you specified is wrong! try again{RESET}")
                     except Exception as e:
-                        print('something went wrong!', e)
+                        print(f'{self.ERR}something went wrong!', e)
             else:
                 print(f"{GREEN} status_code =  {get(url).status_code} :(")
         else:
-            if args[0].upper().strip() == 'HEADERS':
-                re0 = getHeaders(url)
-            elif args[0].upper().strip() == 'CONTENT':
-                re0 = getContent(url)
+
+            if len(args) > 1:
+                if args[-1]:
+                    if len(args) == 3:
+                        if args[0].upper().strip() == 'HEADERS':
+                            self.redirectOutput(getHeaders(url), args[1], args[2])
+                        elif args[0].upper().strip() == 'CONTENT':
+                            self.redirectOutput(getContent(url), args[1], args[2])
+                        else:
+                           self.redirectOutput(getContent(url), args[1], args[2])
+                    else:
+                        print(f"{MAGENTA} expected 4 arguments, got {len(args)} instead!")
+                else:
+                    print(f"{MAGENTA} expected 4 arguments, got {len(args)} instead!")
             else:
-                re0 = getContent(url)
-            print(re0)
-            redirect = input('file to redirect to: ')
-            dumptofile(redirect, re0)
+                if args[0].upper().strip() == 'HEADERS':
+                    re0 = getHeaders(url)
+                elif args[0].upper().strip() == 'CONTENT':
+                    re0 = getContent(url)
+                else:
+                    re0 = getContent(url)
+                print("-"*20)
+                print(re0)
+                print("-"*20)
+                redirect = input(f'[*] {YELLOW}file to redirect to ({MAGENTA}PRESS ENTER TO IGNORE): ')
+                if redirect:
+                    dumptofile(redirect, re0)
     def Cmd(self):
         try:
             if platform == "win32":
@@ -457,7 +498,7 @@ class mooShell:
                     print(f.read())
         else:
             print(f"{self.ERR} this file you specified does not exist")
-    def scandrive(self, name, user=USERPROFILE):
+    def scandrive(self, name):
         pass
     def exist(self, p):
         if p in ["..", '.']:
@@ -467,11 +508,35 @@ class mooShell:
                 return path.exists(p)
             except:
                 return False
+    def redirectOutput(self, content, method=None, fileName=None):
+        if not method:
+            method = ">"
+        else:
+            if method == ">":
+                self.appendToFile(fileName, content)
+            elif method == ">>":
+                self.overwrite(fileName, content)
+            else:
+                print(f"{method} is not a valid switch, either use > to append or >> to overwrite") 
+
+    def appendToFile(self, fileName, content):
+        with open(fileName, "a+") as f:
+            if isinstance(content, bytes):
+                f.write(content.decode())
+            else:
+                f.write(str(content))
+    def overwrite(self, fileName, content):
+        with open(fileName, "w+") as f:
+            if isinstance(content, bytes):
+                f.write(content.decode())
+            else:
+                f.write(str(content))
     def quit(self):
         for i in ['-','\\' , '|', '/']*2:
             print(f'{LIGHTBLACK_EX} quiting {i}', end="\r")
             sleep(.3)
         self.run = False
+
 
 mooShell()
 print(WHITE)

@@ -6,4 +6,5 @@
 	workiing on => ([ ] making git mechanisms to push more effecient to my repos.)
 	[ ] making some dev utils.
 	[ ] sys optimizations and utils.
-		[ ] file organizer.
+		[ ] file organizer
+PORTS = 80 (http)

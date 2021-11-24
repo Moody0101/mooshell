@@ -29,7 +29,10 @@ from colorama import Fore
 from sys import argv
 from time import sleep
 from json import dumps, loads
-user = getenv("USERPROFILE") + "\\" + "data0101"
+if osS == "posix":
+	user = "/mnt" + "data0101"
+else:
+	user = getenv("USERPROFILE") + "\\" + "data0101"
 
 
 
@@ -342,5 +345,5 @@ def execute():
 	else:
 		print(doc)
 
-if __name__ == '__main__':
-	execute()
+# if __name__ == '__main__':
+# 	execute()

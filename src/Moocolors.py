@@ -26,5 +26,10 @@ if __name__ == "__main__":
 			pass
 		else:
 			print(f'{eval(i)}{i} = Fore.{i}')
+	print(f"""
+{GREEN}successfully Installed in Home
+{LIGHTMAGENTA_EX}Now you can try to add to PATH so you can access the shell from wherever you want!
+                """)
+	print(RESET)
 
 print(RESET)
