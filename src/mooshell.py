@@ -1,16 +1,21 @@
-from sys import (stdin, stdout, stderr, platform, path, exit)
+
+
+from sys import (platform, path, exit)
 from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs,
 remove, rename, stat_result, system, walk, getenv, name)
+
 from shutil import move, copy
 from Moocolors import *
 from time import sleep
 from subprocess import check_output
+
 from typing import Union
 from docs import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
-# set Path="%Path%;c:\\users\\Moo"
+
+from CurrencyAnalizer import Analyser, analizerDOC 
 
 
 
@@ -111,6 +116,8 @@ class mooShell:
                 print(doc)
             elif self.promp == "CP":
                 self.cp()
+            elif self.promp == "CRYPTO":
+                print(analizerDOC)
             elif self.promp == "COMPILER":
                 self.args = ["compiler.py"]
                 self.Cmd()
@@ -200,6 +207,15 @@ class mooShell:
             elif self.prompt.split(' ')[0].strip().upper() == "MIM":
                 self.mim(self.prompt.split(' ')[1])
                 print("quiting mim")
+            elif self.prompt.split(' ')[0].strip().upper() == "CRYPTO":
+                if len(self.prompt.split(' ')) == 2:
+                    if self.prompt.split(' ')[1] == "-help":
+                        print(analizerDOC)
+                elif len(self.prompt.split(' ')[1:]) == 3:
+                    self.plotStat(self.prompt.split(' ')[1:])
+                elif len(self.prompt.split(' ')[1:]) == 4:
+                    if "-S" in self.prompt.split(' ')[1:]:
+                        self.DumData(self.prompt.split(' ')[1:-1])
             elif self.prompt.split(' ')[0].strip().upper() == "CP":
                 self.cp(self.prompt.split(' ')[1:])
 
@@ -207,8 +223,12 @@ class mooShell:
 
                 self.setArgs()
                 self.Cmd()
+    
+
     def setArgs(self):
         self.args = ' '.join(self.prompt.split(' ')[0:])
+    
+
     def rm(self, file: Union[str, list]) -> None:
         if isinstance(file, str):
             if self.exist(file):
@@ -221,6 +241,21 @@ class mooShell:
         else:
             for _ in file:
                 self.rm(_)
+    
+    def plotStat(self, args):
+        try:
+            ploter = Analyser(args[0], args[1], args[2])
+            ploter.PlotClose()
+        
+        except Exception as e:
+            print(f"{self.ERR} something went wrong in initialing the class ")
+            print(e)
+    
+
+    def DumData(self, args):
+        ploter = Analyser(args[0], args[1], args[2])
+        ploter.downloadData()
+
     def callDataBase(self, argv: list, n=0):
         if len(argv) == n+2 or len(argv) == n+1:
             if argv[n+1] == '--help':
@@ -508,6 +543,9 @@ specify what you want:
                 return path.exists(p)
             except:
                 return False
+    def ploter(self):
+        """passing args from the function that deals with all the args."""
+        pass
     def redirectOutput(self, content, method=None, fileName=None):
         if not method:
             method = ">"
@@ -518,6 +556,8 @@ specify what you want:
                 self.overwrite(fileName, content)
             else:
                 print(f"{method} is not a valid switch, either use > to append or >> to overwrite") 
+
+    
 
     def appendToFile(self, fileName, content):
         with open(fileName, "a+") as f:
@@ -536,7 +576,6 @@ specify what you want:
             print(f'{LIGHTBLACK_EX} quiting {i}', end="\r")
             sleep(.3)
         self.run = False
-
 
 mooShell()
 print(WHITE)
