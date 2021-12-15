@@ -34,20 +34,15 @@ class GUI:
 """
 analizerDOC = """
 		
-		a tool to plot Cryto currrncy closing stats.
-		
-		Usage: Crypto Currency_symbole start_date End date
-		
-		format: Currency_symbole year-month-day year-month-day 
-		
-		example: ETH 2021-11-10 2021-11-20
+a tool to get stats about a currency
 
-		to dump to a csv file:
-			ETH 2021-11-10 2021-11-20 -S
-		-S: stands for save and it dumps all the data to a file
+Usage: Crypto Currency_symbole start_date End date
 
-		for now you can only plot one month stats.
-		but you can download everythin.
+format: Currency_symbole year-month-day year-month-day 
+
+example: Crypto ETH 2021-11-10 2021-11-20
+
+that downloads the stats about ETH from the first date to the last date
 
 """
 

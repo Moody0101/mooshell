@@ -91,3 +91,9 @@ Removin one or multiple files
 Usage: rm fileName/files 
 example: rm main.js main.css main.txt
 """
+
+FontdownloaderDoc = """
+Downloading font by one command.
+usage: fontD FontName
+apis => google fonts, dafont
+"""

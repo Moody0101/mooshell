@@ -1,23 +1,17 @@
-
-
 from sys import (platform, path, exit)
 from os import (rmdir, chdir, mkdir, getcwd, path, scandir, removedirs,
 remove, rename, stat_result, system, walk, getenv, name)
-
 from shutil import move, copy
 from Moocolors import *
+from datetime import date
 from time import sleep
 from subprocess import check_output
-
 from typing import Union
 from docs import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
-
 from CurrencyAnalizer import Analyser, analizerDOC 
-
-
 
 DOC = f"""{YELLOW}
 ----------------------------------------------------------------------------------
@@ -36,7 +30,7 @@ basic Commands:
     
     you can run:
     {MAGENTA} commandName --help
-    for more information 
+    for more information
 ------------------------------------------------------------------------------------
 {WHITE} language: {BLUE} Python 3.9  
 """
@@ -90,7 +84,7 @@ class mooShell:
                 self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
                 self.processArgs()
             except Exception as e:
-                print(f"{self.ERR} some went bad!! :(",e)  
+                print(f"{self.ERR} some went bad!! :(", e)  
 
     def processArgs(self):
         if len(self.prompt.split(' ')) == 1:
@@ -101,6 +95,8 @@ class mooShell:
                 print()
                 print(self.dir)
                 print()
+            elif self.promp == "FONTD":
+                print(FontdownloaderDoc)
             elif self.promp == "QUIT" or self.promp == "EXIT":
                 self.quit()
             elif self.promp == "ENCODER":
@@ -116,6 +112,8 @@ class mooShell:
                 print(doc)
             elif self.promp == "CP":
                 self.cp()
+            elif self.promp == "MV":
+                print(mvDoc)
             elif self.promp == "CRYPTO":
                 print(analizerDOC)
             elif self.promp == "COMPILER":
@@ -125,99 +123,100 @@ class mooShell:
                 self.args = None
                 self.Cmd()
         elif len(self.prompt.split(' ')) > 1:
-           
-            if self.prompt.split(' ')[0].strip().upper() == "CD":
-                self.changedir(self.prompt.split(' ')[1])
-
-            elif self.prompt.split(' ')[0].strip().upper() == "DATABASE":
-                self.callDataBase(self.prompt.split(' '))
-            elif self.prompt.split(' ')[0].strip().upper() == "TOUCH":
-                if len(self.prompt.split(' ')) > 2:
-                    self.touch(self.prompt.split(' ')[1:])
+            self.prompt = self.prompt.split(' ')
+            if self.prompt[0].strip().upper() == "CD":
+                self.changedir(self.prompt[1])
+            elif self.prompt[0].strip().upper() == "FONTD":
+                self.donwloadFont()
+            elif self.prompt[0].strip().upper() == "DATABASE":
+                self.callDataBase(self.prompt)
+            elif self.prompt[0].strip().upper() == "TOUCH":
+                if len(self.prompt) > 2:
+                    self.touch(self.prompt[1:])
                 else:
-                    self.touch(self.prompt.split(' ')[1])
-            elif self.prompt.split(' ')[0].strip().upper() == "RM":
-                if len(self.prompt.split(' ')) == 2:
-                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                    self.touch(self.prompt[1])
+            elif self.prompt[0].strip().upper() == "RM":
+                if len(self.prompt) == 2:
+                    if self.prompt[1] == '--help' or self.prompt[1] == '-h':
                         print(Rmdoc)
                     else:
-                        self.rm(self.prompt.split(' ')[1])
-                elif len(self.prompt.split(' ')) > 2:
-                    self.rm(self.prompt.split(' ')[1:])
-                elif len(self.prompt.split(' ')) > 2:
-                    
-                        print(mvDoc)
-            elif self.prompt.split(' ')[0].strip().upper() == "MV":
-                if len(self.prompt.split(' ')) == 3:
-                    self.mv(self.prompt.split(' ')[1], self.prompt.split(' ')[2])
-                elif len(self.prompt.split(' ')) > 3:
-                    self.mv(self.prompt.split(' ')[1:-1], self.prompt.split(' ')[-1])
-                elif len(self.prompt.split(' ')) == 2:
-                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+                        self.rm(self.prompt[1])
+                elif len(self.prompt) > 2:
+                    self.rm(self.prompt[1:])
+                elif len(self.prompt) > 2:
+                        print(Rmdoc)
+
+            elif self.prompt[0].strip().upper() == "MV":
+                if len(self.prompt) == 3:
+                    self.mv(self.prompt[1], self.prompt[2])
+                elif len(self.prompt) > 3:
+                    self.mv(self.prompt[1:-1], self.prompt[-1])
+                elif len(self.prompt) == 2:
+                    if self.prompt[1] == '--help' or self.prompt[1] == '-h':
                         print(mvDoc)
                     else:
                         print("seems like the distination has not been specified yet!!")
                 else:
                     print(mvDoc)
-            elif self.prompt.split(' ')[0].strip().upper() == "SCAN":
-                if self.prompt.split(' ')[1] == "--help" or self.prompt.split(' ')[1] == '-h':
+            elif self.prompt[0].strip().upper() == "SCAN":
+                if self.prompt[1] == "--help" or self.prompt[1] == '-h':
                     print(scanDoc)
                 else:
-                    self.scan(self.prompt.split(' ')[1])
-            elif self.prompt.split(' ')[0].strip().upper() == "MKDIR":
-                if self.prompt.split(' ')[1].strip().upper() == '--help' or self.prompt.split(' ')[1].strip().upper() == '-h':
+                    self.scan(self.prompt[1])
+            elif self.prompt[0].strip().upper() == "MKDIR":
+                if self.prompt[1].strip().upper() == '--help' or self.prompt[1].strip().upper() == '-h':
                     print(mkDoc)
                 else:
                     try:
-                        mkdir(self.prompt.split(' ')[1])
+                        mkdir(self.prompt[1])
                     except:
                         print('something went wrong!!')
-            elif self.prompt.split(' ')[0].strip().upper() == "RMDIR":
+            elif self.prompt[0].strip().upper() == "RMDIR":
                 try:
-                    rmdir(self.prompt.split(' ')[1])
+                    rmdir(self.prompt[1])
                 except:
                     print('something went wrong!!')
-            elif self.prompt.split(' ')[0].strip().upper() == "ENCODER":
+            elif self.prompt[0].strip().upper() == "ENCODER":
                 self.setArgs()
                 self.Cmd()
-            elif self.prompt.split(' ')[0].strip().upper() == "COMPILER":
+            elif self.prompt[0].strip().upper() == "COMPILER":
     
-                self.args = [f"{self.prompt.split(' ')[0]}.py", *self.prompt.split(' ')[1:]]
+                self.args = [f"{self.prompt[0]}.py", *self.prompt[1:]]
                 self.Cmd()
-            elif self.prompt.split(' ')[0].strip().upper() == "CAT":
-                if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+            elif self.prompt[0].strip().upper() == "CAT":
+                if self.prompt[1] == '--help' or self.prompt[1] == '-h':
                     print(catDoc)
                 else:
                     self.cat()
-            elif self.prompt.split(' ')[0].strip().upper() == "LS" or self.prompt.split(' ')[0].strip().upper() == "DIR":
-                self.dir = self.prompt.split(' ')[1]
+            elif self.prompt[0].strip().upper() == "LS" or self.prompt[0].strip().upper() == "DIR":
+                self.dir = self.prompt[1]
                 self.ls()
-            elif self.prompt.split(' ')[0].strip().upper() == "HELP":
+            elif self.prompt[0].strip().upper() == "HELP":
                 print()
                 print(availableCommands)
                 print()
-            elif self.prompt.split(' ')[0].strip().upper() == "SCRAP":
-                if len(self.prompt.split(' ')) == 2:
-                    if self.prompt.split(' ')[1] == '--help' or self.prompt.split(' ')[1] == '-h':
+            elif self.prompt[0].strip().upper() == "SCRAP":
+                if len(self.prompt) == 2:
+                    if self.prompt[1] == '--help' or self.prompt[1] == '-h':
                         print(ScrapDoc)
                     else:
-                        self.scrap(self.prompt.split(' ')[1])
-                elif len(self.prompt.split(' ')) >= 3:
-                    self.scrap(self.prompt.split(' ')[1], self.prompt.split(' ')[2:])
-            elif self.prompt.split(' ')[0].strip().upper() == "MIM":
-                self.mim(self.prompt.split(' ')[1])
+                        self.scrap(self.prompt[1])
+                elif len(self.prompt) >= 3:
+                    self.scrap(self.prompt[1], self.prompt[2:])
+            elif self.prompt[0].strip().upper() == "MIM":
+                self.mim(self.prompt[1])
                 print("quiting mim")
-            elif self.prompt.split(' ')[0].strip().upper() == "CRYPTO":
-                if len(self.prompt.split(' ')) == 2:
-                    if self.prompt.split(' ')[1] == "-help":
+            elif self.prompt[0].strip().upper() == "CRYPTO":
+
+                if len(self.prompt) > 1:
+                    if self.prompt[1] == "--help":
                         print(analizerDOC)
-                elif len(self.prompt.split(' ')[1:]) == 3:
-                    self.plotStat(self.prompt.split(' ')[1:])
-                elif len(self.prompt.split(' ')[1:]) == 4:
-                    if "-S" in self.prompt.split(' ')[1:]:
-                        self.DumData(self.prompt.split(' ')[1:-1])
-            elif self.prompt.split(' ')[0].strip().upper() == "CP":
-                self.cp(self.prompt.split(' ')[1:])
+                    else:
+                        self.dumpData(self.prompt[1:])
+                elif len(self.prompt) == 1:
+                    print(analizerDOC)
+            elif self.prompt[0].strip().upper() == "CP":
+                self.cp(self.prompt[1:])
 
             else:
 
@@ -226,7 +225,7 @@ class mooShell:
     
 
     def setArgs(self):
-        self.args = ' '.join(self.prompt.split(' ')[0:])
+        self.args = ' '.join(self.prompt[0:])
     
 
     def rm(self, file: Union[str, list]) -> None:
@@ -241,21 +240,47 @@ class mooShell:
         else:
             for _ in file:
                 self.rm(_)
-    
-    def plotStat(self, args):
-        try:
-            ploter = Analyser(args[0], args[1], args[2])
-            ploter.PlotClose()
-        
-        except Exception as e:
-            print(f"{self.ERR} something went wrong in initialing the class ")
-            print(e)
-    
 
-    def DumData(self, args):
-        ploter = Analyser(args[0], args[1], args[2])
-        ploter.downloadData()
-
+    def donwloadFont(self):
+        fontName = self.prompt[1].strip()
+        if fontName != '--help':
+            urls = [
+            f"https://fonts.google.com/download?family={fontName}",
+            f"https://dl.dafont.com/dl/?f={fontName}"
+            ]
+            reqs = [get(urls[0]), get(urls[1])]
+            APIS = ["Google Font", "Dafont"]
+            for i, res in enumerate(reqs):
+                
+                if int(res.status_code) == 200:
+                    if len(res.content) < 200:
+                        print(f"{Fore.RED}[*] {Fore.MAGENTA}{fontName} was not fount in {APIS[i]}")
+                    else:
+                        print(f"""{Fore.YELLOW}
+            File name: {Fore.LIGHTYELLOW_EX}{fontName}.zip
+            {Fore.YELLOW}size:  {Fore.LIGHTYELLOW_EX}{len(res.content)} Bytes
+            {Fore.YELLOW}provider: {Fore.LIGHTYELLOW_EX}google fonts
+            {Fore.YELLOW}Download directory: {Fore.LIGHTYELLOW_EX}{getcwd()}
+            {Fore.YELLOW}Api: {Fore.LIGHTYELLOW_EX}{APIS[i]}
+            """)
+                        with open(f"{fontName}.zip", "wb") as f:
+                            print(f"{Fore.BLUE}downloading.. {fontName}")
+                            f.write(res.content)
+                        print(f"{Fore.GREEN}successfully donwloaded {fontName}")
+                        break
+                else:
+                    print(f"{Fore.RED}[*] {Fore.MAGENTA}{fontName} was not fount in {APIS[i]}")
+        else:
+            print(FontdownloaderDoc)
+    def dumpData(self, args):
+        if len(args) > 2:
+            dataGetter = Analyser(args[0], args[1], args[2])
+            dataGetter.downloadData()
+        elif len(args) == 2:
+            print("hi")
+            dataGetter = Analyser(*args, date.today().strftime("%Y-%m-%d"))
+            dataGetter.downloadData()
+            
     def callDataBase(self, argv: list, n=0):
         if len(argv) == n+2 or len(argv) == n+1:
             if argv[n+1] == '--help':
@@ -577,7 +602,8 @@ specify what you want:
             sleep(.3)
         self.run = False
 
-mooShell()
+shell = mooShell()
+# print(dir(__file__))
 print(WHITE)
 
 

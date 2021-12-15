@@ -1,1 +1,9 @@
-"colorama" 
+colorama
+matplotlib
+pandas
+requests
+seaborn
+yfinance
+pafy
+youtube-dl
+pandas_datareader

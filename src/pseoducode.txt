@@ -1,10 +1,18 @@
-=> ideas
+
+[ ] embed Font donwloader
 
 
-	[*] making an encrypted database, using hashlib.sha256,hmac.compare_digest() Auth, base64, db class.
-		it will take {nameofdata, data} as an object, the return it if needed. (of crs if the password is correct.)
-	workiing on => ([ ] making git mechanisms to push more effecient to my repos.)
-	[ ] making some dev utils.
-	[ ] sys optimizations and utils.
-		[ ] file organizer
-PORTS = 80 (http)
+[ ] embed youtube downloader
+[ ] embed file organizer
+[ ] embed port scanner
+[ ] embed a webdev project generator
+[ ] embed QR code generator
+[ ] embed Pygame art generator
+[ ] embed audio analyzer
+[ ] embed password generator
+[ ] embed color converter
+[ ] embed base converter
+[ ] embed csv to html utility
+[ ] embed csv to json utility
+[ ] embed json beautifier
+
