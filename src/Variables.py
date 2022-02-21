@@ -97,3 +97,5 @@ Downloading font by one command.
 usage: fontD FontName
 apis => google fonts, dafont
 """
+
+SCHEMAS = ["https", "http"]

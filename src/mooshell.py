@@ -7,7 +7,7 @@ from datetime import date
 from time import sleep
 from subprocess import check_output
 from typing import Union
-from docs import *
+from Variables import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
@@ -71,14 +71,14 @@ class mooShell:
             self.changedir(ROOT)
         else:
             self.changedir(ROOT)
-
         self.PRIMARY = BLUE
         self.SECANDARY = WHITE
         self.YELLOW = YELLOW
         self.ERR = RED
-        
         self.run = True
+
         while self.run:
+
             try:
                 self.dir = getcwd()        
                 self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
@@ -277,7 +277,7 @@ class mooShell:
             dataGetter = Analyser(args[0], args[1], args[2])
             dataGetter.downloadData()
         elif len(args) == 2:
-            print("hi")
+        
             dataGetter = Analyser(*args, date.today().strftime("%Y-%m-%d"))
             dataGetter.downloadData()
             
@@ -428,8 +428,13 @@ class mooShell:
             except:
                 system(f"copy {files[0]} {files[1]}")
     def scrap(self, url, args=[]):
+        if not "http" in url.split(":"):
+            url = "http://" + url
+            
         if len(args) == 0:
+
             if get(url).status_code == 200:
+                
                 res = {
                     0: get(url).content,
                     1: get(url).headers,
@@ -437,26 +442,26 @@ class mooShell:
                     3: get(url).json,
                     4: get(url).text
                 }
+
                 print(f"{GREEN} status_code = 200 OK")
                 scr = True
                 reqprompt = f"""
 {LIGHTCYAN_EX}
-specify what you want:
-=> (0) content
-=> (1) headers
-=> (2) Encoding
-=> (3) json
-=> (4) text
-=> (99) exit
-
+    specify what you want:
+    => (0) content
+    => (1) headers
+    => (2) Encoding
+    => (3) json
+    => (4) text
+    => (99) exit
 """
                 while scr:
                     req = int(input(reqprompt))
                     print()
                     try:
                         if req in res.keys():
-                            req2 = res[req]
-                            print(req2)
+                            req2 = res[req]                    
+                            print(req2.decode("latin1") if isinstance(req2, bytes) else req2)
                             print()
                             redcondition = str(input("want to redirect to a file (yes/no, y/n): "))
                             if redcondition.strip().upper() in ['YES', 'Y']:
@@ -474,8 +479,7 @@ specify what you want:
             else:
                 print(f"{GREEN} status_code =  {get(url).status_code} :(")
         else:
-
-            if len(args) > 1:
+            if len(args) > 3:
                 if args[-1]:
                     if len(args) == 3:
                         if args[0].upper().strip() == 'HEADERS':
@@ -496,11 +500,15 @@ specify what you want:
                 else:
                     re0 = getContent(url)
                 print("-"*20)
-                print(re0)
+                
+                try: print(re0.decode("latin1") if isinstance(re0, bytes) else re0) 
+                except: print(re0) # print(req2.decode() if isinstance(req2, Bytes) else req2)
+
                 print("-"*20)
                 redirect = input(f'[*] {YELLOW}file to redirect to ({MAGENTA}PRESS ENTER TO IGNORE): ')
                 if redirect:
                     dumptofile(redirect, re0)
+
     def Cmd(self):
         try:
             if platform == "win32":
@@ -516,6 +524,10 @@ specify what you want:
                     print(check_output(self.prompt.strip(), shell=True).decode("utf-8"))
         except Exception as e:
             print(e)
+
+    def unzip(self):
+        pass
+
     def mim(self, filename):
         print(f"{self.PRIMARY} to quit and save type /|/")
         self.lineNum = 1
@@ -536,6 +548,7 @@ specify what you want:
                     with open(filename, 'w') as f:
                         f.write(f"{input_}\n")
             self.lineNum += 1
+
     def cat(self):
         if self.exist(self.prompt.split(' ')[1]):
             if len(self.prompt.split(' ')) > 2:
