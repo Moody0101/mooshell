@@ -98,4 +98,31 @@ usage: fontD FontName
 apis => google fonts, dafont
 """
 
-SCHEMAS = ["https", "http"]
+HELP = """
+
+ - basic command (mkdir, rmdir, cp, mv, rm...)
+ - scrap -> web scrapping tool 
+ - mim -> Text editor, even if it is not finished yet, I have problems, but shortly will be solved.
+ - Encoder -> a tool decode/Encode base32, base64, base85..
+ - Compiler -> a c++/c continuous compiling automation loop, only specify the file then it will continuously compile ur script automatically.
+ -  database -> A data base to store data, it uses encryption, also you can costumize it using Database.py.
+ - Crypto ->  a tool to scrap crypto currency data from the yahoo  finance api
+ - fontD -> a font downloader that uses google font api and dafont api to download fonts more more easily
+ - ORG -> a command to organize a directory.
+"""
+
+ORGdoc = """
+
+A tool to organize files in  a folder.
+USAGE:
+    path files: a.mp3, x.mp4, p.py
+After usage:
+    path folders:
+        Audio:
+            a.mp3
+        videos: 
+            x.mp3
+        code:
+            p.py
+
+"""

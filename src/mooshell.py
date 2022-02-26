@@ -11,7 +11,6 @@ from Variables import *
 from requests import get
 from utility import dumptofile, getContent, getHeaders
 from database import *
-from CurrencyAnalizer import Analyser, analizerDOC 
 
 DOC = f"""{YELLOW}
 ----------------------------------------------------------------------------------
@@ -61,11 +60,12 @@ class __installer:
 {LIGHTMAGENTA_EX}=> Now you can try to add to PATH so you can access the shell from wherever you want!
                 """)
 
+
 class mooShell:
 
     def __init__(self):
         print(DOC)
-
+        
         if not self.exist(ROOT):
             mkdir(ROOT)
             self.changedir(ROOT)
@@ -81,7 +81,7 @@ class mooShell:
 
             try:
                 self.dir = getcwd()        
-                self.prompt = input(f'{self.ERR}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
+                self.prompt = input(f'{GREEN}[mooshell] {self.YELLOW} {self.dir} => ' + self.SECANDARY)
                 self.processArgs()
             except Exception as e:
                 print(f"{self.ERR} some went bad!! :(", e)  
@@ -89,8 +89,11 @@ class mooShell:
     def processArgs(self):
         if len(self.prompt.split(' ')) == 1:
             self.promp =  self.prompt.strip().upper()
+
             if self.promp == "LS" or self.promp == "DIR":
                 self.ls()
+            elif self.promp == "HELP":
+                print(HELP)
             elif self.promp == "CD":
                 print()
                 print(self.dir)
@@ -114,18 +117,26 @@ class mooShell:
                 self.cp()
             elif self.promp == "MV":
                 print(mvDoc)
-            elif self.promp == "CRYPTO":
-                print(analizerDOC)
+            elif self.promp == "ORG":
+                self.ORGANIZE('.')
+
             elif self.promp == "COMPILER":
                 self.args = ["compiler.py"]
+
                 self.Cmd()
             else:
                 self.args = None
                 self.Cmd()
+
         elif len(self.prompt.split(' ')) > 1:
             self.prompt = self.prompt.split(' ')
+
             if self.prompt[0].strip().upper() == "CD":
                 self.changedir(self.prompt[1])
+
+            elif self.prompt[0].strip().upper() == "ORG":
+                self.ORG(self.prompt[1])
+
             elif self.prompt[0].strip().upper() == "FONTD":
                 self.donwloadFont()
             elif self.prompt[0].strip().upper() == "DATABASE":
@@ -206,15 +217,7 @@ class mooShell:
             elif self.prompt[0].strip().upper() == "MIM":
                 self.mim(self.prompt[1])
                 print("quiting mim")
-            elif self.prompt[0].strip().upper() == "CRYPTO":
-
-                if len(self.prompt) > 1:
-                    if self.prompt[1] == "--help":
-                        print(analizerDOC)
-                    else:
-                        self.dumpData(self.prompt[1:])
-                elif len(self.prompt) == 1:
-                    print(analizerDOC)
+            
             elif self.prompt[0].strip().upper() == "CP":
                 self.cp(self.prompt[1:])
 
@@ -227,6 +230,47 @@ class mooShell:
     def setArgs(self):
         self.args = ' '.join(self.prompt[0:])
     
+    def ORG(self, path_):
+        if path_.strip().upper() == "--HELP":
+            print(ORGdoc)
+        else:
+            if not self.exist(path_):
+                print("the path does not exist.")
+            else:
+                for i in scandir(path_):
+                    if str(i.name).split('.')[1] in ["py", "ps", "bash", "yaml", "html", "c", "cpp", "c++", "r", "rb", "js", "css", "scss", "json", "tsx", "c#", "java"]:
+                        self.move_(path_, i, "code")
+
+                    elif str(i.name).split('.')[1] in ["mp3", "m4a", "wav"]:
+                        self.move_(path_, i, "Audio")
+                    
+                    elif str(i.name).split('.')[1] in ["docx", "pdf", "ai", "fig", "psd", "xd"]:
+                        self.move_(path_, i, "Docs")
+
+                    elif str(i.name).split('.')[1] in ["mp4", "webm", "mkv"]:
+                        self.move_(path_, i, "videos")
+
+                    elif str(i.name).split('.')[1] in ["gif", "jpeg", "png", "svg"]:
+                        self.move_(path_, i, "pictures")
+
+                    elif str(i.name).split('.')[1] in ["exe", "", "msi"]:
+                        self.move_(path_, i, "Programs")
+
+                    elif str(i.name).split('.')[1] == "iso":
+                        self.move_(path_, i, "ISO")
+
+                    else:
+                        self.move_(path_, i, "other")
+                print(f"{GREEN}Completed!!")
+
+
+    def move_(self, path_, file, folderName):
+        """this function checks if the folder does not exist this is why I did not use the other one
+            shutil.move().
+        """
+        if not self.exist(path.join(path_, folderName)):
+            mkdir(path.join(path_, folderName))
+        self.mv(file.name, path.join(path_, folderName))
 
     def rm(self, file: Union[str, list]) -> None:
         if isinstance(file, str):
@@ -272,15 +316,7 @@ class mooShell:
                     print(f"{Fore.RED}[*] {Fore.MAGENTA}{fontName} was not fount in {APIS[i]}")
         else:
             print(FontdownloaderDoc)
-    def dumpData(self, args):
-        if len(args) > 2:
-            dataGetter = Analyser(args[0], args[1], args[2])
-            dataGetter.downloadData()
-        elif len(args) == 2:
-        
-            dataGetter = Analyser(*args, date.today().strftime("%Y-%m-%d"))
-            dataGetter.downloadData()
-            
+
     def callDataBase(self, argv: list, n=0):
         if len(argv) == n+2 or len(argv) == n+1:
             if argv[n+1] == '--help':
@@ -331,6 +367,7 @@ class mooShell:
                     db.cleanUp()
                 else:
                     print(doc)
+
         elif len(argv) > 2:
             if argv[1+n] == "--register":
                 # cmd = arg0 --register dbName password  (make new db, with this name and passsword!)
@@ -345,6 +382,7 @@ class mooShell:
                     exit(0)
                 else:
                     print(f"{RED}either the database name of the password is messing!{WHITE}")
+
             elif argv[1+n] == "--login":
                 if len(argv) == 4+n:
                     #cmd2 = arg0 --login dbName password (login using this name and password!)
@@ -581,9 +619,7 @@ class mooShell:
                 return path.exists(p)
             except:
                 return False
-    def ploter(self):
-        """passing args from the function that deals with all the args."""
-        pass
+    
     def redirectOutput(self, content, method=None, fileName=None):
         if not method:
             method = ">"
