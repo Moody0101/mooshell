@@ -21,6 +21,7 @@ the header my name.
 Database --help or -h => to get some help.
 
 """
+
 from hashlib import sha256
 from bases import base64
 from os import getenv, path, mkdir, system, remove
@@ -29,6 +30,7 @@ from colorama import Fore
 from sys import argv
 from time import sleep
 from json import dumps, loads
+
 if osS == "posix":
 	user = "/mnt" + "data0101"
 else:

@@ -30,18 +30,25 @@
  - `fontD` a font downloader that uses google font api and dafont api to download fonts more more easily
 
 ### upcoming features:
- - files organizer
+ - files organizer +done!!
+
  - YoutubeDownloader
+
  - port scanner
+
  - audio analyzer
+
  - Pygame art generator
+
  - QR code generator
+
  - password generator
- - base2/base10/hex... converter
+
  - rgb -> hex / hex -> rgb
+
  - csv to html
- - json displayer
- - web dev project template generator
+
+ - encrypt data encrypter with RSA
 
 note: contributions are wellcomed.
  
